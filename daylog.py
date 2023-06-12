@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import sys
+import os.path
 from datetime import datetime
 from colorama import init as colorama_init
 from colorama import Fore
@@ -18,7 +20,7 @@ def setTime():
     now = datetime.now() 
     strNowTime = now.strftime("%H:%M:%S")
     strNowDate = now.strftime("%m / %d / %y -- %A")
-    strNowMo = now.strftime("%m_%B")
+    strNowMo = now.strftime("%Y_%B")
     global currentTime
     global currentDate
     global currentMonth
@@ -28,49 +30,76 @@ def setTime():
 
 def whatDo():
     did = input("What'd ya do? \n>> " + Fore.YELLOW)
-    conf = input(Style.RESET_ALL + "Did you do " + Fore.YELLOW + "'" + did + Style.RESET_ALL + "'" + "? " + Style.DIM + "(y, n)" + Style.RESET_ALL + " : ")
-    if (conf == "n"):
-        whatDo()
-    elif (conf == "y"):
-        global done
-        done.append(did)
-        moreCheck()
-    else:
-        print(":(")
-        whatDo()
+    global done
+    done.append(did)
+    moreCheck()
 
-def resetDo():
+def resetLastDo(i):
+    global done
+    if i == "u":
+        done.pop()
+        listLogs()
+        moreCheck()
+    else: 
+        done.pop(int(i) - 1)
+        listLogs()
+        moreCheck()
+
+def resetDoAll():
     global done
     del done[:]
     whatDo()
 
 def moreCheck():
-    conf = input("Did anything else? " + Style.DIM + "(y, n)" + Style.RESET_ALL + " : ")
-    if (conf == "n"):
+    confIn = input(Style.RESET_ALL + "Did anything else? " + Style.DIM + "(y [yes], n [no], u [undo], l [list])" + Style.RESET_ALL + " : ")
+    conf = confIn.lower()
+    if len(conf) > 1:
+        conf = conf.split()        
+
+    if (conf[0] == "n" or conf == "no" or conf == "nah"):
         lastConfirm()
-    elif (conf == "y"):
+    elif (conf[0] == "y" or conf == "yes" or conf == "yeah"):
         whatDo()
+    elif (conf[0] == "u" or conf == "undo"):
+        if conf[-1] == None:
+            resetLastDo(conf[0])
+        else:
+            resetLastDo(conf[-1])
+    elif (conf[0] == "l" or conf == "list"):
+        listLogs()
+        moreCheck()
+    elif (conf[0] == "c"):
+        sys.exit()
     else:
         print(":(")
         moreCheck()
 
-def lastConfirm():
+def listLogs(color=Fore.CYAN):
     print("\n")
     i = 0
     while i < len(done):
         c = i + 1
-        print(Fore.MAGENTA + str(c) + ": " + done[i] + ";" + Style.RESET_ALL)
+        print(color + str(c) + ": " + done[i] + ";" + Style.RESET_ALL)
         i = i + 1
     print("\n")
-    conf = input("Looks good? " + Style.DIM + "(y [submit], n[reset])" + Style.RESET_ALL + " : ")
+
+
+def lastConfirm():
+    listLogs(Fore.MAGENTA)
+    conf = input("Looks good? " + Style.DIM + "(y [submit], n [reset], u #[undo], c [cancel])" + Style.RESET_ALL + " : ")
     if (conf == "n"):
-        resetDo()
+        resetDoAll()
         whatDo()
     elif (conf == "y"):
         writeResults()
+    elif (conf == "u"):
+        resetLastDo()
+    elif (conf == "c"):
+        sys.exit()
     else:
         print(":(")
         lastConfirm()
+
 
 def writeResults():
     setTime()
@@ -113,14 +142,31 @@ def writeResults():
 
 
     # set dest folder
+    homeRoot = os.path.expanduser('~')
+    daylogRoot = homeRoot + "/daylog"
+    logRoot = "/logs"
+    monthDir = "/" + currentMonth + ".log"
+    currentLog = daylogRoot + logRoot + monthDir
+    errorCatch = homeRoot + "/daylog/err.log"
 
+    if (os.path.isfile(currentLog) == False):
+        writeOperator = "a"
+    else:  
+        writeOperator = "w"
 
     # Write content
-    with open("logs/daylog.txt", "a") as f:
-        for i in doneList:
-            f.write("%s\n" % i)
-
-
+    with open(currentLog, writeOperator) as f:
+        try:
+            for i in doneList:
+                f.write("%s\n" % i)
+        except:
+            print("Error in path " + daylogRoot + logRoot + "printing to " + errorCatch)
+            with open(currentLog, "a") as f:
+                try: 
+                    for i in doneList:
+                        f.write("%s\n" % 1)
+                except:
+                    print("Shit is fucked.")
 
 #
 # woohoo.
