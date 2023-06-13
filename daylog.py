@@ -149,13 +149,8 @@ def writeResults():
     currentLog = daylogRoot + logRoot + monthDir
     errorCatch = homeRoot + "/daylog/err.log"
 
-    if (os.path.isfile(currentLog) == False):
-        writeOperator = "a"
-    else:  
-        writeOperator = "w"
-
     # Write content
-    with open(currentLog, writeOperator) as f:
+    with open(currentLog, "a") as f:
         try:
             for i in doneList:
                 f.write("%s\n" % i)
