@@ -13,15 +13,19 @@ def getShell():
 def fishInstall():
     homeRoot = os.path.expanduser('~')
     fish_check = homeRoot + "/.config/fish/functions"
-    if os.path.exists(fish_check) is False:
-        os.makedirs(fish_check, exist_ok=True)
-    else:
+    def installTriage():
         fish_path = homeRoot + "/.config/fish/functions/daylog.fish"
         if os.path.getsize(fish_path) == 0: 
             installOnFish(fish_path)
         else:
             os.remove(fish_path)
             installOnFish(fish_path)
+
+    if os.path.exists(fish_check) is False:
+        os.makedirs(fish_check, exist_ok=True)
+        installTriage()
+    else:
+        installTriage()
 
 def installOnFish(fish_path):
     fish_write = '''function daylog
