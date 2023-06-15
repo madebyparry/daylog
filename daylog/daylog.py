@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import getopt
 import os.path
 from datetime import datetime
 from colorama import init as colorama_init
@@ -8,13 +9,37 @@ from colorama import Style
 
 colorama_init()
 
-def main():
-    setConst()
-    whatDo()
+def main(opts, args):
+    if opts:
+        checkArgs(opts, args)
+    else:
+        setConst()
+        whatDo()
 
 def setConst():
     global done
     done = []
+    
+
+def checkArgs(opts, args):
+    for opt, args in opts:
+        if opt in ("-h", "--help", "?"):
+            print(Style.DIM + "-h [help], -l [list], -o [out], -e [edit], -t [new task], -v [view task]" + Style.RESET_ALL)
+        elif opt in ("-l", "--list"):
+            setDirs()
+            os.system("cat " + currentLog)
+        elif opt in ("-o", "--out"):
+            setDirs()
+            print(Style.DIM + "\nCurrent log output:" + Style.RESET_ALL)
+            print("\n\t" + Fore.MAGENTA +  currentLog + Style.RESET_ALL + "\n")
+        elif opt in ("-e", "--edit"):
+            print("[TODO]: " + args + " args")
+        elif opt in ("-t", "--task"):
+            newTask(args)
+        elif opt in ("-v", "--view"):
+            viewTasks()
+
+
 
 def setTime():
     now = datetime.now() 
@@ -27,6 +52,22 @@ def setTime():
     currentTime = strNowTime
     currentDate = strNowDate
     currentMonth = strNowMo
+
+def setDirs():
+    setTime()
+    global currentLog
+    global daylogRoot
+    global logRoot
+    global taskFile
+    global errorCatch
+    homeRoot = os.path.expanduser('~')
+    daylogRoot = homeRoot + "/daylog"
+    logRoot = "/logs"
+    monthLog = "/" + currentMonth + ".log"
+    taskFile = daylogRoot + "/tasks/taskfile.txt"
+    currentLog = daylogRoot + logRoot + monthLog
+    errorCatch = homeRoot + "/daylog/err.log"
+
 
 def whatDo():
     did = input("What'd ya do? \n>> " + Fore.YELLOW)
@@ -51,7 +92,7 @@ def resetDoAll():
     whatDo()
 
 def moreCheck():
-    confIn = input(Style.RESET_ALL + "Did anything else? " + Style.DIM + "(y [yes], n [no], u [undo], l [list])" + Style.RESET_ALL + " : ")
+    confIn = input(Style.RESET_ALL + "Did anything else? " + Style.DIM + "(y [yes], n [no], u [undo], l [list], t [tasks])" + Style.RESET_ALL + " : ")
     conf = confIn.lower()
     if len(conf) > 1:
         conf = conf.split()        
@@ -68,6 +109,9 @@ def moreCheck():
     elif (conf[0] == "l" or conf == "list"):
         listLogs()
         moreCheck()
+    elif (conf[0] == "t" or conf == "tasks"):
+        viewTasks()
+        moreCheck()
     elif (conf[0] == "c"):
         sys.exit()
     else:
@@ -82,7 +126,6 @@ def listLogs(color=Fore.CYAN):
         print(color + str(c) + ": " + done[i] + ";" + Style.RESET_ALL)
         i = i + 1
     print("\n")
-
 
 def lastConfirm():
     listLogs(Fore.MAGENTA)
@@ -142,12 +185,7 @@ def writeResults():
 
 
     # set dest folder
-    homeRoot = os.path.expanduser('~')
-    daylogRoot = homeRoot + "/daylog"
-    logRoot = "/logs"
-    monthDir = "/" + currentMonth + ".log"
-    currentLog = daylogRoot + logRoot + monthDir
-    errorCatch = homeRoot + "/daylog/err.log"
+    setDirs()
 
     # Write content
     with open(currentLog, "a") as f:
@@ -156,15 +194,33 @@ def writeResults():
                 f.write("%s\n" % i)
         except:
             print("Error in path " + daylogRoot + logRoot + "printing to " + errorCatch)
-            with open(currentLog, "a") as f:
+            with open(errorCatch, "a") as f:
                 try: 
                     for i in doneList:
                         f.write("%s\n" % 1)
                 except:
                     print("Shit is fucked.")
 
+# Tasks
+def newTask(x):
+    setDirs()
+    with open(taskFile, "a") as f:
+        f.write(x + "\n")
+    print("New task: "+ Fore.YELLOW + x + Style.RESET_ALL)
+
+def viewTasks():
+    setDirs()
+    f = open(taskFile)
+    for line in f:
+        print(line)
+
+
 #
 # woohoo.
 # alias daylog="/home/%USER/scripts/daylog/daylog.py"
 #
-main()
+try:
+    inputOpts, inputArgs = getopt.getopt(sys.argv[1:], "hloe:t:v", ["help","out","edit"])
+    main(inputOpts, inputArgs)
+except:
+    print("daylog out.")
