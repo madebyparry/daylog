@@ -15,7 +15,7 @@ def fishInstall():
     fish_check = homeRoot + "/.config/fish/functions"
     def installTriage():
         fish_path = homeRoot + "/.config/fish/functions/daylog.fish"
-        if os.path.getsize(fish_path) == 0: 
+        if os.path.exists(fish_path) == False or os.path.getsize(fish_path) == 0: 
             installOnFish(fish_path)
         else:
             os.remove(fish_path)
