@@ -92,11 +92,10 @@ def resetDoAll():
     whatDo()
 
 def moreCheck():
-    confIn = input(Style.RESET_ALL + "Did anything else? " + Style.DIM + "(y [yes], n [no], u [undo], l [list], t [tasks])" + Style.RESET_ALL + " : ")
+    confIn = input(Style.RESET_ALL + "Did anything else? " + Style.DIM + "\n(y [yes], n [no], u [undo done], l [list done], t [view tasks], a [add task to done]) \n" + Style.RESET_ALL + ":: ")
     conf = confIn.lower()
     if len(conf) > 1:
         conf = conf.split()        
-
     if (conf[0] == "n" or conf == "no" or conf == "nah"):
         lastConfirm()
     elif (conf[0] == "y" or conf == "yes" or conf == "yeah"):
@@ -112,6 +111,15 @@ def moreCheck():
     elif (conf[0] == "t" or conf == "tasks"):
         viewTasks()
         moreCheck()
+    elif (conf[0] == "a" or conf == "add"):
+        if conf[-1] == "a":
+            viewTasks()
+            print("What task did you do? (-a [NUM])")
+            moreCheck()
+        else:
+            didTask(conf[-1])
+            listLogs()
+            moreCheck()
     elif (conf[0] == "c"):
         sys.exit()
     else:
@@ -129,7 +137,7 @@ def listLogs(color=Fore.CYAN):
 
 def lastConfirm():
     listLogs(Fore.MAGENTA)
-    conf = input("Looks good? " + Style.DIM + "(y [submit], n [reset], u #[undo], c [cancel])" + Style.RESET_ALL + " : ")
+    conf = input("Looks good? " + Style.DIM + "(y [submit], n [reset], u [undo], c [cancel])" + Style.RESET_ALL + " : ")
     if (conf == "n"):
         resetDoAll()
         whatDo()
@@ -199,22 +207,42 @@ def writeResults():
                     for i in doneList:
                         f.write("%s\n" % 1)
                 except:
-                    print("Shit is fucked.")
+                    print("Shit is fucked, yo.")
 
 # Tasks
 def newTask(x):
     setDirs()
-    with open(taskFile, "a") as f:
-        f.write(x + "\n")
-    print("New task: "+ Fore.YELLOW + x + Style.RESET_ALL)
+    if x == "view":
+        viewTasks()
+    else:
+        with open(taskFile, "a") as f:
+            f.write(x + '\n')
+        print("New task: " + Fore.YELLOW + x + Style.RESET_ALL)
 
 def viewTasks():
     setDirs()
-    f = open(taskFile)
-    for line in f:
-        print(line)
+    print('\n' + 'Tasks:')
+    with open(taskFile, 'r') as f:
+        i = 0
+        for line in f:
+            i = i + 1
+            print('\t' + str(i) + ') ' + line, end='')
+    print('\n')
 
-
+def didTask(n):
+    x = int(n)
+    f_lines = []
+    if type(x) is int:
+        setDirs()
+        with open(taskFile, 'r') as f:
+            f_lines = f.readlines()
+            done.append(f_lines[x - 1][0:-1])
+            f_lines.pop(x - 1)
+        with open(taskFile, 'w') as fw:
+            fw.writelines(f_lines)
+    else: 
+        print("set the number to add task")
+        moreCheck()
 #
 # woohoo.
 # alias daylog="/home/%USER/scripts/daylog/daylog.py"
