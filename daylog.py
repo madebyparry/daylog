@@ -9,7 +9,7 @@ from datetime import datetime
 from colorama import init as colorama_init, Fore, Style
 
 colorama_init()
-print(daylog_settings.directories['daylog_root'])
+print(daylog_settings.user_paths['daylog_root'])
 
 def splash_screen():
     possible_greetings = [
@@ -204,7 +204,7 @@ def writeResults():
 
 
     # set dest folder
-    directories = get_directories(current_time)
+    user_paths = get_directories(current_time)
 
     # Set header
     doneList.append(listHeader)
@@ -220,14 +220,14 @@ def writeResults():
     doneList.append(listFooter)
     print(Fore.MAGENTA + "\n\t=== end ===\n" + Style.RESET_ALL)
 
-    print(Fore.MAGENTA + Style.DIM + '(' + directories['log_file'] + ")\n" + Style.RESET_ALL)
+    print(Fore.MAGENTA + Style.DIM + '(' + user_paths['log_file'] + ")\n" + Style.RESET_ALL)
     # Write content
-    with open(directories['log_file'], "a") as f:
+    with open(user_paths['log_file'], "a") as f:
         try:
             for i in doneList:
                 f.write("%s\n" % i)
         except:
-            print("Error in path " + directories['log_dir'])
+            print("Error in path " + user_paths['log_dir'])
             # with open(errorCatch, "a") as f:
             #     try: 
             #         for i in doneList:
@@ -237,13 +237,13 @@ def writeResults():
 
 
 def get_directories(current_time):
-    directories = {}
-    directories['daylog_root'] = daylog_settings.directories['daylog_root']
-    directories['log_dir'] = directories['daylog_root'] + daylog_settings.directories['log_directory']
-    directories['log_file'] = directories['log_dir'] + '/' + current_time['date']['year_long'] + '_' + current_time['date']['month_long'] + '.log'
-    directories['task_dir'] = directories['daylog_root'] + daylog_settings.directories['task_directory'] 
-    directories['task_file'] = directories['task_dir'] + daylog_settings.directories['task_file'] 
-    return directories
+    user_paths = {}
+    user_paths['daylog_root'] = daylog_settings.user_paths['daylog_root']
+    user_paths['log_dir'] = user_paths['daylog_root'] + daylog_settings.user_paths['log_directory']
+    user_paths['log_file'] = user_paths['log_dir'] + '/' + current_time['date']['year_long'] + '_' + current_time['date']['month_long'] + '.log'
+    user_paths['task_dir'] = user_paths['daylog_root'] + daylog_settings.user_paths['task_directory'] 
+    user_paths['task_file'] = user_paths['task_dir'] + daylog_settings.user_paths['task_file'] 
+    return user_paths
 
 # def new_log_list():
     # confIn = input(Style.RESET_ALL + "Did anything else? " + Style.DIM + "\n(y [yes], n [no], u [undo done], l [list done], t [view tasks], a [add task to done]) \n" + Style.RESET_ALL + ":: ")
