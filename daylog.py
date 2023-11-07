@@ -4,10 +4,12 @@ import os
 import time
 import random
 import argparse
+import data.settings as daylog_settings
 from datetime import datetime
 from colorama import init as colorama_init, Fore, Style
 
 colorama_init()
+print(daylog_settings.directories['daylog_root'])
 
 def splash_screen():
     possible_greetings = [
@@ -236,11 +238,11 @@ def writeResults():
 
 def get_directories(current_time):
     directories = {}
-    directories['daylog_root'] = '/home/nicholas/daylog/'
-    directories['log_dir'] = directories['daylog_root'] + 'logs/'
-    directories['log_file'] = directories['log_dir'] + current_time['date']['year_long'] + '_' + current_time['date']['month_long'] + '.log'
-    directories['task_dir'] = directories['daylog_root'] + 'tasks/'
-    directories['task_file'] = directories['task_dir'] + '/taskfile.log' 
+    directories['daylog_root'] = daylog_settings.directories['daylog_root']
+    directories['log_dir'] = directories['daylog_root'] + daylog_settings.directories['log_directory']
+    directories['log_file'] = directories['log_dir'] + '/' + current_time['date']['year_long'] + '_' + current_time['date']['month_long'] + '.log'
+    directories['task_dir'] = directories['daylog_root'] + daylog_settings.directories['task_directory'] 
+    directories['task_file'] = directories['task_dir'] + daylog_settings.directories['task_file'] 
     return directories
 
 # def new_log_list():
