@@ -24,9 +24,15 @@ def confirm_folder(user_paths):
     if user_in == 'y':
         user_paths['daylog_root'] = default_dir
         settings_alter(user_paths)
+        create_dirs(user_paths)
     else:
         user_paths = set_all_directories()
         settings_alter(user_paths)
+        create_dirs(user_paths)
+
+def create_dirs(user_paths):
+    log_dir = user_paths['daylog_root'] + user_paths['log_directory']
+    os.mkdir(log_dir)
 
 def settings_alter(user_paths):
     # sed_cmd = "sed -i 's#%REPLACE1%#" + daylog_dir + "#' " + daylog_dir + '/data/settings.py'
